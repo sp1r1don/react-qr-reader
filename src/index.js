@@ -79,18 +79,18 @@ module.exports = class Reader extends Component {
     const changedProps = havePropsChanged(this.props, nextProps, propsKeys)
 
     for (const prop of changedProps) {
-      if (prop == 'facingMode') {
+      if (prop === 'facingMode') {
         this.clearComponent()
         this.initiate(nextProps)
         break
-      } else if (prop == 'delay') {
-        if (this.props.delay == false && !nextProps.legacyMode) {
+      } else if (prop === 'delay') {
+        if (this.props.delay === false && !nextProps.legacyMode) {
           this.timeout = setTimeout(this.check, nextProps.delay)
         }
-        if (nextProps.delay == false) {
+        if (nextProps.delay === false) {
           clearTimeout(this.timeout)
         }
-      } else if (prop == 'legacyMode') {
+      } else if (prop === 'legacyMode') {
         if (this.props.legacyMode && !nextProps.legacyMode) {
           this.clearComponent()
           this.initiate(nextProps)
@@ -142,7 +142,7 @@ module.exports = class Reader extends Component {
     // Firefox ignores facingMode or deviceId constraints
     const isFirefox = /firefox/i.test(navigator.userAgent);
     const isSafari = !!navigator.userAgent.match(/Version\/[\d.]+.*Safari/);
-    
+
     if (navigator.mediaDevices && typeof navigator.mediaDevices.getSupportedConstraints === 'function') {
       const supported = navigator.mediaDevices.getSupportedConstraints()
       const constraints = {}
@@ -193,11 +193,15 @@ module.exports = class Reader extends Component {
 
     const streamTrack = stream.getTracks()[0]
     // Assign `stopCamera` so the track can be stopped once component is cleared
-    this.stopCamera = streamTrack.stop.bind(streamTrack)
+    this.stopCamera = () => {
+      setTimeout(() => {
+        streamTrack.stop();
+      }, 2000);
+    }
 
     preview.addEventListener('loadstart', this.handleLoadStart)
 
-    this.setState({ mirrorVideo: facingMode == 'user', streamLabel: streamTrack.label })
+    this.setState({ mirrorVideo: facingMode === 'user', streamLabel: streamTrack.label })
   }
   handleLoadStart() {
     const { delay, onLoad } = this.props
